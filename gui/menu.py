@@ -2,36 +2,45 @@ from tkinter import Menu
 
 
 class MainMenu:
+    _menu_mapper = {"Inventory": "inventory",
+                    "User": "user",
+                    "Room_collection": "room_collection",
+                    "Order": "order",
+                    "Move size": "move_size",
+                    "Address": "address",
+                    "Calendar": "calendar",
+                    "Floor collection": "floor_collection",
+                    "Price tag": "price_tag",
+                    "Services": "services",
+                    "Street": "street",
+                    "Zip code": "zip_code",
+                    "Truck": "truck",
+                    "Truck_type": "truck_type",
+                    }
+
     def __init__(self, window):
         self.window = window
-        self.initui()
+        self.init_ui()
 
-    def initui(self):
-        mainmenu = Menu(self.window)
-        self.window.config(menu=mainmenu)
+    def init_ui(self):
+        main_menu = Menu(self.window)
+        self.window.config(menu=main_menu)
 
-        filemenu = Menu(mainmenu, tearoff=0)
+        file_menu = Menu(main_menu, tearoff=0)
 
-        submenu = Menu(filemenu)
-        submenu.add_command(label="Inventory", command=self.call_menu_frame("inventory"))
-        submenu.add_command(label="User", command=self.call_menu_frame("user"))
-        submenu.add_command(label="Service", command=self.call_menu_frame("services"))
-        submenu.add_command(label="Address", command=self.call_menu_frame("address"))
-        submenu.add_command(label="Calendar", command=self.call_menu_frame("calendar"))
-        submenu.add_command(label="Floor Collections", command=self.call_menu_frame("floor_collection"))
-        submenu.add_command(label="Move size", command=self.call_menu_frame("move_size"))
-        submenu.add_command(label="Order", command=self.call_menu_frame("order"))
-        submenu.add_command(label="Price tag", command=self.call_menu_frame("price_tag"))
-        submenu.add_command(label="Room Collections", command=self.call_menu_frame("room_collection"))
-        submenu.add_command(label="Street", command=self.call_menu_frame("street"))
-        submenu.add_command(label="Truck", command=self.call_menu_frame("truck"))
-        submenu.add_command(label="Truck type", command=self.call_menu_frame("truck_type"))
-        submenu.add_command(label="Zipcode", command=self.call_menu_frame("zip_code"))
-        filemenu.add_cascade(label="Data Base", menu=submenu)
+        submenu = Menu(file_menu)
+        for key, value in self._menu_mapper.items():
+            submenu.add_command(label=key, command=self.call_data_base_frame(value))
+        file_menu.add_cascade(label="Data Base", menu=submenu)
+        file_menu.add_command(label="User Flow", command=self.call_user_flow)
 
-        mainmenu.add_cascade(label="Files", menu=filemenu)
+        main_menu.add_cascade(label="Files", menu=file_menu)
 
-    def call_menu_frame(self, menu):
+    def call_data_base_frame(self, menu):
         def call_back():
-            self.window.menu_frame(menu)
+            self.window.data_base_frame(menu)
+
         return call_back
+
+    def call_user_flow(self):
+        self.window.user_flow_session()

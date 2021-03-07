@@ -1,9 +1,11 @@
 import tkinter as tk
 from PIL import Image, ImageTk
-from .buttons import Buttons
+from .data_base_buttons import DataBaseButtons
 from .menu import MainMenu
 from .contents import Contents
 from .forms import Forms
+from .message_box import MessageBox
+from .user_flow import UserFlow
 
 
 class Window(tk.Tk):
@@ -17,29 +19,22 @@ class Window(tk.Tk):
         self.img.image = self.render
         self.img.place(x=0, y=0)
         self.web_api = web_api
-        self.mainmenu = MainMenu(self)
+        self.db_frame = DataBaseButtons(self)
+        self.main_menu = MainMenu(self)
         self.content_frame = Contents(self)
         self.forms_frame = Forms(self)
+        self.user_flow = UserFlow(self)
 
-    def menu_frame(self, menu_point):
-        menu_frame = Buttons(self, menu_point)
-        menu_frame.grid(row=0, column=0, sticky=tk.N, padx=20)
+    def user_flow_session(self):
+        self.db_frame.destroy()
+        self.content_frame.destroy()
+        self.forms_frame.destroy()
+        self.user_flow.personal_info()
 
-    def show_data(self, api_f, api_end_point, api_id=None):
-
-        def call_back():
-            self.content_frame.destroy()
-            self.forms_frame.destroy()
-            self.content_frame = Contents(self)
-            self.content_frame.grid(row=1, column=0, sticky=tk.S)
-            if api_id:
-                id = api_id.get()
-                data = api_f(api_end_point, id)
-            else:
-                data = api_f(api_end_point)
-            self.content_frame.data_structure(data)
-
-        return call_back
+    def data_base_frame(self, menu_point):
+        self.db_frame.destroy()
+        self.db_frame = DataBaseButtons(self, menu_point)
+        self.db_frame.grid(row=0, column=0, sticky=tk.N, padx=20)
 
     def show_form(self, form_type):
         def call_back():
@@ -50,5 +45,38 @@ class Window(tk.Tk):
             self.forms_frame.show_form()
         return call_back
 
+    def show_data(self, api_f, api_end_point, api_id=None):
+
+        def call_back():
+            self.content_frame.destroy()
+            self.forms_frame.destroy()
+            self.content_frame = Contents(self)
+            self.content_frame.grid(row=1, column=0, sticky=tk.S)
+            if api_id:
+                id = api_id.get()
+                response_code, response_data = api_f(api_end_point, id)
+            else:
+                response_code, response_data = api_f(api_end_point)
+            self.content_frame.data_structure(response_data)
+
+        return call_back
+
+    def get_move_info_id(self, api_end_point, data):
+        response_code, response_data = self.web_api.get_data(api_end_point, f"get/{data}")
+        if response_code > 399:
+            MessageBox(response_code, response_data, api_end_point)
+        else:
+            self.user_flow.order[api_end_point].append(response_data["id"])
+
     def post_data(self, api_end_point, data):
-        self.web_api.post_data(api_end_point, data)
+        response_code, response_data = self.web_api.post_data(api_end_point, data)
+        MessageBox(response_code, response_data, api_end_point)
+
+    def post_personal_data(self, api_end_point, data):
+        response_code, response_data = self.web_api.post_data(api_end_point, data)
+        if response_code > 399:
+            MessageBox(response_code, response_data, api_end_point)
+        else:
+            self.user_flow.order[api_end_point].append(response_data["id"])
+            self.user_flow.move_info()
+

@@ -27,9 +27,9 @@ class WebApi:
         else:
             url = urljoin(self._api_url, self._paths[end_point])
         resp = requests.get(url)
-        return resp.json()
+        return resp.status_code, resp.json()
 
     def post_data(self, end_point, data: dict):
         url = urljoin(self._api_url, self._paths[end_point])
         post = requests.post(url, json=data)
-        print(post)
+        return post.status_code, post.json()

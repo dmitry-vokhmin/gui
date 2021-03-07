@@ -4,14 +4,13 @@ import tkinter as tk
 class Contents(tk.Frame):
     def __init__(self, window, *args, **kwargs):
         super().__init__(window, *args, **kwargs)
-        self.window = window
 
     def data_structure(self, data, row=1):
-        column = 1
         if isinstance(data, list):
-            for itm in data:
-                row = self.data_structure(itm, row=row)
+            for row, itm in enumerate(data, 1):
+                self.data_structure(itm, row)
         if isinstance(data, dict):
+            column = 1
             for key, value in data.items():
                 if row == 1:
                     tk.Label(self, text=f"{key}", font=("Arial", 13, "bold"),
@@ -21,5 +20,3 @@ class Contents(tk.Frame):
                 tk.Label(self, text=f"{value}").grid(row=row, column=column)
                 tk.Label(self, text=f"{row}").grid(row=row, column=0)
                 column += 1
-            row += 1
-        return row
