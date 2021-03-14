@@ -11,7 +11,7 @@ class Forms(tk.Frame):
                        "calendar": ["start_date", "end_date", "price_tag_id"],
                        "floor_collection": ["name"],
                        "price_tag": ["name", "price"],
-                       "services": ["name"],
+                       "service": ["name"],
                        "street": ["street_name"],
                        "zip_code": ["zip_code", "city", "state"],
                        "truck": ["name", "truck_type_id"],

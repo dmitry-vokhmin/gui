@@ -11,7 +11,7 @@ class MainMenu:
                     "Calendar": "calendar",
                     "Floor collection": "floor_collection",
                     "Price tag": "price_tag",
-                    "Services": "services",
+                    "Service": "service",
                     "Street": "street",
                     "Zip code": "zip_code",
                     "Truck": "truck",

@@ -3,6 +3,7 @@ import tkinter as tk
 
 class PersonalInfo(tk.Frame):
     _user = {"user": ["firstname", "lastname", "email", "phone_number"]}
+    user_data = {}
 
     def __init__(self, window, *args, **kwargs):
         super().__init__(window, *args, **kwargs)
@@ -23,5 +24,7 @@ class PersonalInfo(tk.Frame):
             data = {}
             for entry_count, value in enumerate(self._user["user"]):
                 data[value] = self.entries[entry_count].get()
-            self.master.post_personal_data(api_end_point, data)
+            response_data = self.master.post_data(api_end_point, data)
+            self.user_data[api_end_point + "_id"] = response_data["id"]
+            self.master.next_step(self.user_data)
         return call_back

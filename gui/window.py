@@ -24,12 +24,17 @@ class Window(tk.Tk):
         self.content_frame = Contents(self)
         self.forms_frame = Forms(self)
         self.user_flow = UserFlow(self)
+        self.steps = iter(self.user_flow)
 
     def user_flow_session(self):
         self.db_frame.destroy()
         self.content_frame.destroy()
         self.forms_frame.destroy()
-        self.user_flow.personal_info()
+        self.next_step(data=None)
+
+    def next_step(self, data):
+        step = next(self.steps)
+        step(data)
 
     def data_base_frame(self, menu_point):
         self.db_frame.destroy()
@@ -43,6 +48,7 @@ class Window(tk.Tk):
             self.forms_frame = Forms(self, form_type)
             self.forms_frame.grid(row=1, column=0, sticky=tk.S)
             self.forms_frame.show_form()
+
         return call_back
 
     def show_data(self, api_f, api_end_point, api_id=None):
@@ -54,29 +60,23 @@ class Window(tk.Tk):
             self.content_frame.grid(row=1, column=0, sticky=tk.S)
             if api_id:
                 id = api_id.get()
-                response_code, response_data = api_f(api_end_point, id)
+                response_code, response_data = api_f(api_end_point, api_id=id)
             else:
                 response_code, response_data = api_f(api_end_point)
             self.content_frame.data_structure(response_data)
 
         return call_back
 
-    def get_move_info_id(self, api_end_point, data):
-        response_code, response_data = self.web_api.get_data(api_end_point, f"get/{data}")
+    def get_data(self, api_end_point, api_id=0, query_param=""):
+        response_code, response_data = self.web_api.get_data(api_end_point, api_id=api_id, query_param=query_param)
         if response_code > 399:
             MessageBox(response_code, response_data, api_end_point)
         else:
-            self.user_flow.order[api_end_point].append(response_data["id"])
+            return response_data
 
     def post_data(self, api_end_point, data):
         response_code, response_data = self.web_api.post_data(api_end_point, data)
-        MessageBox(response_code, response_data, api_end_point)
-
-    def post_personal_data(self, api_end_point, data):
-        response_code, response_data = self.web_api.post_data(api_end_point, data)
         if response_code > 399:
             MessageBox(response_code, response_data, api_end_point)
         else:
-            self.user_flow.order[api_end_point].append(response_data["id"])
-            self.user_flow.move_info()
-
+            return response_data
