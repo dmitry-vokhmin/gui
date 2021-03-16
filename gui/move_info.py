@@ -1,3 +1,4 @@
+from datetime import timedelta, datetime
 import tkinter as tk
 
 
@@ -8,17 +9,20 @@ class MoveInfo(tk.Frame):
     def __init__(self, window, *args, **kwargs):
         super().__init__(window, *args, **kwargs)
         entry_kwargs = {"master": self, "width": 10}
-        self.field_mapper = {"move_date": {"field": tk.Entry, "kwargs": entry_kwargs},
+        self.field_mapper = {"move_date": ({"field": tk.StringVar, "kwargs": {}},
+                                           {"field": tk.OptionMenu, "args": self.get_data("calendar")}),
                              "service": ({"field": tk.StringVar, "kwargs": {}},
-                                          {"field": tk.OptionMenu, "args": self.get_data("service")}),
+                                         {"field": tk.OptionMenu, "args": self.get_data("service")}),
                              "move_size": ({"field": tk.StringVar, "kwargs": {}},
-                                          {"field": tk.OptionMenu, "args": self.get_data("move_size")}),
+                                           {"field": tk.OptionMenu, "args": self.get_data("move_size")}),
                              "zip_code_from": {"field": tk.Entry, "kwargs": entry_kwargs},
                              "zip_code_to": {"field": tk.Entry, "kwargs": entry_kwargs},
                              "floor_collection_from": ({"field": tk.StringVar, "kwargs": {}},
-                                          {"field": tk.OptionMenu, "args": self.get_data("floor_collection")}),
+                                                       {"field": tk.OptionMenu,
+                                                        "args": self.get_data("floor_collection")}),
                              "floor_collection_to": ({"field": tk.StringVar, "kwargs": {}},
-                                          {"field": tk.OptionMenu, "args": self.get_data("floor_collection")})
+                                                     {"field": tk.OptionMenu,
+                                                      "args": self.get_data("floor_collection")})
                              }
         self.add_button = tk.Button(self, text="Next", command=self.send_data)
         self.fields = {}
@@ -26,8 +30,8 @@ class MoveInfo(tk.Frame):
             if isinstance(field, dict):
                 self.fields[key] = field["field"](**field["kwargs"])
             elif isinstance(field, tuple):
-                tmp = field[0]["field"](**field[0]["kwargs"])
-                self.fields[key] = (field[1]["field"](self, tmp, *field[1]["args"]), tmp)
+                string_var = field[0]["field"](**field[0]["kwargs"])
+                self.fields[key] = (field[1]["field"](self, string_var, *field[1]["args"]), string_var)
         self.show_form()
 
     def show_form(self):
@@ -45,7 +49,7 @@ class MoveInfo(tk.Frame):
     def send_data(self):
         for key, field in self.fields.items():
             if key == "move_date":
-                self._move_info_data[key] = field.get()
+                self._move_info_data[key] = field[1].get()
                 continue
             elif isinstance(field, tuple):
                 response_data = self.master.get_data(key, query_param=f"?q={field[1].get()}")
@@ -56,4 +60,12 @@ class MoveInfo(tk.Frame):
 
     def get_data(self, api_end_point):
         response_data = self.master.get_data(api_end_point)
+        if api_end_point == "calendar":
+            calendar = []
+            for dicts in response_data:
+                start_date = datetime.strptime(dicts["start_date"], "%Y-%m-%d")
+                end_date = datetime.strptime(dicts["end_date"], "%Y-%m-%d")
+                delta = end_date - start_date
+                calendar.extend([(start_date + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(delta.days + 1)])
+            return calendar
         return [value for dicts in response_data for key, value in dicts.items() if key == "name"]

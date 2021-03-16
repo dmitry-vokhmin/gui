@@ -7,9 +7,12 @@ class MessageBox:
 
     @staticmethod
     def message_box(response_code, response_data, api_end_point):
-        if response_code > 399:
-            for value in response_data.values():
-                for data in value:
-                    messagebox.showerror("Error", f"Field: '{data['loc'][1]}' message: '{data['msg']}'")
+        if isinstance(response_data, dict):
+            if response_code > 399:
+                for value in response_data.values():
+                    for data in value:
+                        messagebox.showerror("Error", f"Field: '{data['loc'][1]}' message: '{data['msg']}'")
+            else:
+                messagebox.showinfo("Ok", f"{api_end_point} added")
         else:
-            messagebox.showinfo("Ok", f"{api_end_point} added")
+            messagebox.showerror("Error", f"Field: '{api_end_point}' message: '{response_data}'")

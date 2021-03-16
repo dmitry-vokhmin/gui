@@ -30,6 +30,7 @@ class Window(tk.Tk):
         self.db_frame.destroy()
         self.content_frame.destroy()
         self.forms_frame.destroy()
+        self.steps = iter(self.user_flow)
         self.next_step(data=None)
 
     def next_step(self, data):

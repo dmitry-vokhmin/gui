@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import tkinter as tk
 
 
@@ -24,5 +25,15 @@ class FinalOrder(tk.Frame):
         return column
 
     def post_order(self, data):
-        response_data = self.master.post_data("order", data)
-        self.show_order(response_data)
+        calendar = []
+        dates = self.master.get_data("calendar")
+        for date in dates:
+            start_date = datetime.strptime(date["start_date"], "%Y-%m-%d")
+            end_date = datetime.strptime(date["end_date"], "%Y-%m-%d")
+            delta = end_date - start_date
+            calendar.extend([(start_date + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(delta.days + 1)])
+        if data["move_date"] in calendar:
+            response_data = self.master.post_data("order", data)
+            self.show_order(response_data)
+        else:
+            self.master.MessageBox(400, "Date is not available", "calendar")

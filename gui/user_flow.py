@@ -35,13 +35,13 @@ class UserFlow:
     def personal_info(self, data=None):
         self.per_info_frame.grid(row=0, column=0, sticky=tk.N, padx=20)
 
-    def move_info(self, data):
-        self.order.update(data)
+    def move_info(self, personal_info):
+        self.order.update(personal_info)
         self.per_info_frame.destroy()
         self.move_info_frame.grid(row=0, column=0, sticky=tk.N, padx=20)
 
-    def calculate(self, data):
-        for key, value in data.items():
+    def calculate(self, move_info):
+        for key, value in move_info.items():
             if key == "zip_code_from_id" or key == "zip_code_to_id":
                 self.zip_codes[key] = value
             else:
@@ -50,14 +50,14 @@ class UserFlow:
         self.calculation_result_frame.grid(row=0, column=0, sticky=tk.N, padx=20)
         self.calculation_result_frame.send_data(self.order)
 
-    def address_info(self, data):
-        self.order.update(data)
+    def address_info(self, calculate):
+        self.order.update(calculate)
         self.calculation_result_frame.destroy()
         self.address_info_frame.grid(row=0, column=0, sticky=tk.N, padx=20)
         self.address_info_frame.get_zip_code_info(self.zip_codes)
 
-    def final_order(self, data):
-        self.order.update(data)
+    def final_order(self, address_info):
+        self.order.update(address_info)
         self.address_info_frame.destroy()
         self.final_order_frame.grid(row=0, column=0, sticky=tk.N, padx=20)
         self.final_order_frame.post_order(self.order)
