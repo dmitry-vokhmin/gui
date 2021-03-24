@@ -1,5 +1,6 @@
 from datetime import timedelta, datetime
 import tkinter as tk
+from inventory.inventory_window import InventoryWindow
 
 
 class MoveInfo(tk.Frame):
@@ -25,6 +26,7 @@ class MoveInfo(tk.Frame):
                                                       "args": self.get_data("floor_collection")})
                              }
         self.add_button = tk.Button(self, text="Next", command=self.send_data)
+        self.inventory_button = tk.Button(self, text="Add Inventory", command=self.add_inventory)
         self.fields = {}
         for key, field in self.field_mapper.items():
             if isinstance(field, dict):
@@ -40,6 +42,7 @@ class MoveInfo(tk.Frame):
                      font=("Arial", 13, "bold"), bg='green').grid(row=0, column=column, padx=10)
         else:
             self.add_button.grid(row=2, column=column // 2, padx=10, pady=10)
+            self.inventory_button.grid(row=2, column=column // 3, padx=10, pady=10)
         for column, field in enumerate(self.fields.values()):
             if isinstance(field, tuple):
                 field[0].grid(row=1, column=column, padx=10, pady=10)
@@ -69,3 +72,6 @@ class MoveInfo(tk.Frame):
                 calendar.extend([(start_date + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(delta.days + 1)])
             return calendar
         return [value for dicts in response_data for key, value in dicts.items() if key == "name"]
+
+    def add_inventory(self):
+        InventoryWindow(self.master)

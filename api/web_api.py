@@ -4,6 +4,7 @@ from urllib.parse import urljoin
 
 class WebApi:
     _paths = {"inventory": "/inventory/",
+              "room_inventory": "/inventory/all/",
               "user": "/user/",
               "room_collection": "/room_collection/",
               "address": "/address/",

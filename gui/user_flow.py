@@ -23,6 +23,7 @@ class UserFlowIter:
 class UserFlow:
     order = {}
     zip_codes = {}
+    inventory = {}
 
     def __init__(self, window):
         self.window = window
