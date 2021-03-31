@@ -3,6 +3,7 @@ from collections import defaultdict
 
 
 class Contents(tk.Frame):
+    # TODO: Сравнение нового inventory с preset и загрузить его в базу
     inventory = []
 
     def __init__(self, window, *args, **kwargs):
@@ -16,9 +17,13 @@ class Contents(tk.Frame):
         self.submit_button = tk.Button(self, text="Submit", command=self.submit_inventory).grid(row=1, column=2)
         self.selected_inventory()
 
-    def data_structure(self, data):
+    def data_structure(self, data, move_size):
         for inventory in data:
             self.inv_listbox.insert("end", inventory["name"])
+        response_data = self.master.master.get_data("room_inventory", move_size)
+        for inventory in response_data:
+            self.inventory.append(inventory.get("name", []))
+        self.selected_inventory()
 
     def add_inventory(self):
         for line in self.inv_listbox.curselection():
@@ -36,6 +41,7 @@ class Contents(tk.Frame):
         for itm in self.inventory:
             dict_inventory[itm] += 1
         self.master.master.user_flow.inventory.clear()
+        # Возможно поменять \/
         self.master.master.user_flow.inventory.update(dict_inventory)
         self.master.destroy()
 

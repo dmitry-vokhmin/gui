@@ -45,6 +45,8 @@ class UserFlow:
         for key, value in move_info.items():
             if key == "zip_code_from_id" or key == "zip_code_to_id":
                 self.zip_codes[key] = value
+            elif key == "inventory":
+                self.inventory.update(value)
             else:
                 self.order[key] = value
         self.move_info_frame.destroy()

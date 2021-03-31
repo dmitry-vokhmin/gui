@@ -1,11 +1,12 @@
 from datetime import timedelta, datetime
+from collections import defaultdict
 import tkinter as tk
 from inventory.inventory_window import InventoryWindow
 
 
 class MoveInfo(tk.Frame):
     _move_info_data = {}
-    _move = {"move": ["move_date", "move_size", "service", "zip_code_from", "zip_code_to", "floor_from", "floor_to"]}
+    _move = {"move": ["move_date", "service", "move_size", "zip_code_from", "zip_code_to", "floor_from", "floor_to"]}
 
     def __init__(self, window, *args, **kwargs):
         super().__init__(window, *args, **kwargs)
@@ -26,14 +27,17 @@ class MoveInfo(tk.Frame):
                                                       "args": self.get_data("floor_collection")})
                              }
         self.add_button = tk.Button(self, text="Next", command=self.send_data)
-        self.inventory_button = tk.Button(self, text="Add Inventory", command=self.add_inventory)
         self.fields = {}
         for key, field in self.field_mapper.items():
             if isinstance(field, dict):
                 self.fields[key] = field["field"](**field["kwargs"])
             elif isinstance(field, tuple):
                 string_var = field[0]["field"](**field[0]["kwargs"])
-                self.fields[key] = (field[1]["field"](self, string_var, *field[1]["args"]), string_var)
+                if key == "move_size":
+                    self.fields[key] = (field[1]["field"](self, string_var, *field[1]["args"],
+                                                          command=self.trace_selection), string_var)
+                else:
+                    self.fields[key] = (field[1]["field"](self, string_var, *field[1]["args"]), string_var)
         self.show_form()
 
     def show_form(self):
@@ -42,7 +46,6 @@ class MoveInfo(tk.Frame):
                      font=("Arial", 13, "bold"), bg='green').grid(row=0, column=column, padx=10)
         else:
             self.add_button.grid(row=2, column=column // 2, padx=10, pady=10)
-            self.inventory_button.grid(row=2, column=column // 3, padx=10, pady=10)
         for column, field in enumerate(self.fields.values()):
             if isinstance(field, tuple):
                 field[0].grid(row=1, column=column, padx=10, pady=10)
@@ -58,6 +61,8 @@ class MoveInfo(tk.Frame):
                 response_data = self.master.get_data(key, query_param=f"?q={field[1].get()}")
             else:
                 response_data = self.master.get_data(key, query_param=f"?q={field.get()}")
+            if key == "move_size":
+                self._move_info_data["inventory"] = self.get_inventory(field[1].get())
             self._move_info_data[key + "_id"] = response_data["id"]
         self.master.next_step(self._move_info_data)
 
@@ -73,5 +78,19 @@ class MoveInfo(tk.Frame):
             return calendar
         return [value for dicts in response_data for key, value in dicts.items() if key == "name"]
 
-    def add_inventory(self):
-        InventoryWindow(self.master)
+    def add_inventory(self, selection):
+        def call_back():
+            InventoryWindow(self.master, selection)
+        return call_back
+
+    def trace_selection(self, *args):
+        selection = self.fields["move_size"][1].get()
+        inventory_button = tk.Button(self, text="Add Inventory", command=self.add_inventory(selection))
+        inventory_button.grid(row=2, column=2, padx=10, pady=10)
+
+    def get_inventory(self, move_size):
+        inventory = defaultdict(int)
+        response_data = self.master.get_data("room_inventory", move_size)
+        for elem in response_data:
+            inventory[elem.get("name", [])] += 1
+        return inventory
