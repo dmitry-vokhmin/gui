@@ -2,20 +2,12 @@ from tkinter import Menu
 
 
 class MainMenu:
-    _menu_mapper = {"Inventory": "inventory",
-                    "User": "user",
-                    "Room_collection": "room_collection",
-                    "Order": "order",
-                    "Move size": "move_size",
-                    "Address": "address",
+    _menu_mapper = {"Inventory Collection": "inventory_collection",
                     "Calendar": "calendar",
-                    "Floor collection": "floor_collection",
                     "Price tag": "price_tag",
-                    "Service": "service",
-                    "Street": "street",
-                    "Zip code": "zip_code",
+                    "Mover Price": "mover_price",
                     "Truck": "truck",
-                    "Truck_type": "truck_type",
+                    "Truck type": "truck_type",
                     }
 
     def __init__(self, window):
@@ -39,7 +31,6 @@ class MainMenu:
     def call_data_base_frame(self, menu):
         def call_back():
             self.window.data_base_frame(menu)
-
         return call_back
 
     def call_user_flow(self):

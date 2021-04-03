@@ -3,7 +3,6 @@ from collections import defaultdict
 
 
 class Contents(tk.Frame):
-    # TODO: Сравнение нового inventory с preset и загрузить его в базу
     inventory = []
 
     def __init__(self, window, *args, **kwargs):

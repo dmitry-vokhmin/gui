@@ -7,6 +7,7 @@ class WebApi:
               "room_inventory": "/inventory/all/",
               "user": "/user/",
               "room_collection": "/room_collection/",
+              "inventory_collection": "/inventory_collection/",
               "address": "/address/",
               "calendar": "/calendar/",
               "floor_collection": "/floor_collection/",
@@ -35,7 +36,18 @@ class WebApi:
         resp = requests.get(url)
         return resp.status_code, resp.json()
 
-    def post_data(self, end_point, data: dict):
-        url = urljoin(self._api_url, self._paths[end_point])
+    def post_data(self, end_point, data: dict, api_id=None):
+        if api_id:
+            url = urljoin(self._api_url, self._paths[end_point] + str(api_id))
+        else:
+            url = urljoin(self._api_url, self._paths[end_point])
         post = requests.post(url, json=data)
         return post.status_code, post.json()
+
+    def put_data(self, end_point, data: dict, api_id=None):
+        if api_id:
+            url = urljoin(self._api_url, self._paths[end_point] + str(api_id))
+        else:
+            url = urljoin(self._api_url, self._paths[end_point])
+        put = requests.put(url, json=data)
+        return put.status_code, put.json()

@@ -6,6 +6,7 @@ from .contents import Contents
 from .forms import Forms
 from .message_box import MessageBox
 from .user_flow import UserFlow
+from .many_form import ManyForm
 
 
 class Window(tk.Tk):
@@ -23,6 +24,7 @@ class Window(tk.Tk):
         self.main_menu = MainMenu(self)
         self.content_frame = Contents(self)
         self.forms_frame = Forms(self)
+        self.many_form_frame = ManyForm(self)
         self.user_flow = UserFlow(self)
         self.steps = iter(self.user_flow)
 
@@ -41,31 +43,41 @@ class Window(tk.Tk):
         self.db_frame.destroy()
         self.db_frame = DataBaseButtons(self, menu_point)
         self.db_frame.grid(row=0, column=0, sticky=tk.N, padx=20)
+        self.db_frame.show_buttons()
 
-    def show_form(self, form_type):
+    def show_form(self, form_type, crud):
         def call_back():
             self.content_frame.destroy()
             self.forms_frame.destroy()
-            self.forms_frame = Forms(self, form_type)
+            self.many_form_frame.destroy()
+            self.forms_frame = Forms(self, form_type, crud)
             self.forms_frame.grid(row=1, column=0, sticky=tk.S)
             self.forms_frame.show_form()
-
         return call_back
 
-    def show_data(self, api_f, api_end_point, api_id=None):
-
+    def show_many_form(self, api_end_point):
         def call_back():
             self.content_frame.destroy()
             self.forms_frame.destroy()
+            self.many_form_frame.destroy()
+            self.many_form_frame = ManyForm(self, api_end_point)
+            self.many_form_frame.grid(row=1, column=0, sticky=tk.S)
+            self.many_form_frame.data_structure()
+        return call_back
+
+    def show_data(self, api_end_point, api_id=None):
+        def call_back():
+            self.content_frame.destroy()
+            self.forms_frame.destroy()
+            self.many_form_frame.destroy()
             self.content_frame = Contents(self)
             self.content_frame.grid(row=1, column=0, sticky=tk.S)
             if api_id:
                 id = api_id.get()
-                response_code, response_data = api_f(api_end_point, api_id=id)
+                response_code, response_data = self.web_api.get_data(api_end_point, api_id=id)
             else:
-                response_code, response_data = api_f(api_end_point)
+                response_code, response_data = self.web_api.get_data(api_end_point)
             self.content_frame.data_structure(response_data)
-
         return call_back
 
     def get_data(self, api_end_point, api_id=0, query_param=""):
@@ -75,8 +87,15 @@ class Window(tk.Tk):
         else:
             return response_data
 
-    def post_data(self, api_end_point, data):
-        response_code, response_data = self.web_api.post_data(api_end_point, data)
+    def post_data(self, api_end_point, data, api_id=None):
+        response_code, response_data = self.web_api.post_data(api_end_point, data, api_id)
+        if response_code > 399:
+            MessageBox(response_code, response_data, api_end_point)
+        else:
+            return response_data
+
+    def put_data(self, api_end_point, data, api_id=None):
+        response_code, response_data = self.web_api.put_data(api_end_point, data, api_id)
         if response_code > 399:
             MessageBox(response_code, response_data, api_end_point)
         else:
